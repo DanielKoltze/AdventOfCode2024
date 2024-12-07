@@ -1,3 +1,4 @@
+import itertools
 
 def assignemt1():
     file = open('day 7/file.txt', 'r')
@@ -6,16 +7,27 @@ def assignemt1():
     for i in range(len(lines)):
         (checkResult, numbers) = getData(lines[i])
         combinations = findCombinations(numbers)
-    return checkResult
+        if checkCalibration(checkResult,numbers,combinations):
+            result += checkResult
+    return result
+
+
+def checkCalibration(result,numbers,combinations):
+    for combination in combinations:
+        num = numbers[0]
+        for i in range(1,len(numbers),1):
+            if combination[i-1] == '+':
+                num += numbers[i]
+            elif combination[i-1] == '*':
+                num *= numbers[i]
+        if num == result:
+            return True
+    return False
 
 
 def findCombinations(numbers):
     operators = ['+', '*']
-
-
-
-def checkCalibrations(result,numbers):
-    pass
+    return list(itertools.product(operators, repeat=len(numbers)-1))
 
 def getData(line):
     split = line.split(':')
@@ -25,4 +37,4 @@ def getData(line):
     numbers = [int(n) for n in numbers]
     return (check, numbers)
 
-assignemt1()
+print(assignemt1())
