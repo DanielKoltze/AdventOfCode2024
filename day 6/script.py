@@ -6,7 +6,7 @@ def assignemt1():
     currentPosition = findStartPosition(twoDArr)
     currentDirectionIndex = 0
     while True:
-        twoDArr = markArr(twoDArr,currentPosition)
+        twoDArr = markArr(twoDArr,currentPosition,'X')
         nextPosition = findNextPosition(currentPosition,currentDirectionIndex)
         if checkIndexOutOfBounds(twoDArr,nextPosition):
             break
@@ -17,6 +17,77 @@ def assignemt1():
             currentPosition = nextPosition
     return findResult(twoDArr)
 
+
+
+def assignemt2():
+    file = open('day 6/file.txt', 'r')
+    lines = [line.strip() for line in file]
+    twoDArr = createTwoDArr(lines)
+    currentPosition = findStartPosition(twoDArr)
+    currentDirectionIndex = 0
+    obstructions = []
+    justMoved = False
+    while True:
+        nextPosition = findNextPosition(currentPosition,currentDirectionIndex)
+        if checkForInfinityLoop(twoDArr,currentPosition,currentDirectionIndex,justMoved):
+            obstructions.append(nextPosition)
+        if checkIndexOutOfBounds(twoDArr,nextPosition):
+            break
+        symbol = findNextSymboID(nextPosition,twoDArr)
+        if symbolIsWall(symbol):
+            justMoved = True
+            currentDirectionIndex = updateDirectionIndex(currentDirectionIndex)
+        else:
+            justMoved = False
+            currentPosition = nextPosition
+        twoDArr = markpart2(twoDArr,currentPosition,currentDirectionIndex)
+    return len(obstructions)
+
+def checkForInfinityLoop(twoDArr,position,index,moved):
+    if moved:
+        return False
+    (y,x) = position
+    if index == 0:
+        return checkLine(1,0,x,y,'-',twoDArr)
+    if index == 1:
+        return checkLine(0,1,x,y,'|',twoDArr)
+    if index == 2:
+        return checkLine(-1,0,x,y,'-',twoDArr)
+    if index == 3:
+        return checkLine(0,-1,x,y,'|',twoDArr)
+    
+def checkLine(xIncr,yIncr,x,y,check,twoDArr):
+    wallFound = False
+    valueFound = False
+    while True:
+        x += xIncr
+        y += yIncr
+        if y < 0 or x < 0:
+            break
+        try: value = twoDArr[y][x]
+        except IndexError: 
+            break
+        if value == '+' or value == check:
+            valueFound = True
+        if value == '#':
+            wallFound = True
+    return valueFound and wallFound
+
+
+def markpart2(twoDArr,position,index):
+    (y,x) = position
+    symbol = None
+    if twoDArr[y][x] == '^':
+        return twoDArr
+    if index == 0 or index == 2:
+        symbol = '|'
+    if index == 1 or index == 3:
+        symbol = '-'
+    if twoDArr[y][x] == '|' or twoDArr[y][x] == '-':
+        symbol = '+'
+    twoDArr[y][x] = symbol
+    return twoDArr
+
 def findResult(arr):
     result = 0
     for i in range(len(arr)):
@@ -25,9 +96,9 @@ def findResult(arr):
                 result += 1
     return result
 
-def markArr(twoDArr,position):
+def markArr(twoDArr,position,mark):
     (y,x) = position
-    twoDArr[y][x] = 'X'
+    twoDArr[y][x] = mark
     return twoDArr
 
 def updateDirectionIndex(directionIndex):
@@ -78,4 +149,5 @@ def createTwoDArr(lines):
     return arr
 
 
-print(assignemt1())
+print(f'Assignemt 1: {assignemt1()}')
+print(f'Assignemt 2: {assignemt2()}')
